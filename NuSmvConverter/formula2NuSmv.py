@@ -5,6 +5,8 @@ from random import sample, seed
 
 class PLTL2NuSmv():
 
+    _operand_classes = [Since, Or, And, Implies]
+
     def __init__(self, formula_str: str, fname: str):
         self._formula = parse_pltl(formula_str)
         self.formula_str = formula_str
@@ -20,7 +22,7 @@ class PLTL2NuSmv():
             curr_node_type = type(curr_node)
             if curr_node_type == Atomic:
                 names.add(curr_node.name)
-            elif curr_node_type == Since or curr_node_type == Or or curr_node_type == And or curr_node_type == Implies:
+            elif curr_node_type in self._operand_classes:
                 for op in curr_node.operands:
                     queue.append(op)
             else:
@@ -35,7 +37,7 @@ class PLTL2NuSmv():
         with open(tableaux_filename, "r") as file:
             lines = file.readlines()
         with open(self._fname, "w") as file:
-            file.write(lines[0])
+            file.write("MODULE main\n")
             # Boolean variables
             file.write("VAR\n")
             for name in self._extract_names():
@@ -50,9 +52,7 @@ class PLTL2NuSmv():
                 file.write(f"{var} ")
             file.write("\n")
 
-            # Spec
-            file.write("LTLSPEC\n")
-            file.write(f"\t{self.formula_str}\n")
+            
             
 def main():
     seed(23)
